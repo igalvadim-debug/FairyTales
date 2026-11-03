@@ -77,16 +77,19 @@ Hintergrundthread, das Fenster bleibt bedienbar. Eine kleine
 Bild-Vorschau erscheint nur, wenn zusätzlich `python3-pil` installiert ist —
 sie ist optional.
 
-## Alles auf der Festplatte (keine SD-Karte nötig)
+## Alles auf der Festplatte (kein ESP, keine SD-Karte nötig)
 
-Diese Werkzeuge brauchen **keine SD-/microSD-Karte**. Alle erzeugten Texte
-und Bilder werden direkt auf die **Festplatte** geschrieben:
+Es gibt **kein ESP32-P4-Panel mehr** — alles läuft nur noch auf dem
+Linux-Rechner, und diese Werkzeuge brauchen auch **keine SD-/microSD-Karte**.
+Alle erzeugten Texte und Bilder werden direkt auf die **Festplatte**
+geschrieben:
 
 - Standard-Ausgabeordner: `./ausgaben/` im aktuellen Verzeichnis.
 - frei wählbar: `agnes-cli geschichte "Thema" ~/Geschichten` bzw.
   `python3 agnes_client.py geschichte "Thema" --ausgabe-dir ~/Geschichten`.
-- Die Firmware des Panels enthält alle Inhalte selbst (SPIFFS-Image aus dem
-  ZIP) — es wird nichts auf eine Karte kopiert.
+- Das eigentliche Märchenbuch ist das Linux-Programm `maerchenbuch.py`
+  im Hauptordner dieses Projekts (Geschichten/Bilder/Vorlesen direkt auf
+  dem Rechner) — es wird nichts geflasht und nichts auf eine Karte kopiert.
 
 ## Tipps für 32-Bit / 2 GB RAM
 

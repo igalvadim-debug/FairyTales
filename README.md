@@ -1,70 +1,96 @@
-# CrowPanel P4 Märchen-Storybook — ESP32-P4 Firmware (Festplatten-Version)
+# Märchen-Storybook — jetzt als Linux-Programm (ohne ESP!)
 
-Interaktives Märchenbuch für **Elecrow CrowPanel Advanced ESP32-P4** mit
-1024 × 600 Touchdisplay. Diese Version kommt **ohne microSD-Karte** aus:
-Alle Inhalte (Bilder, Animationen, Erzähl-Audio) sind bereits in der
-Firmware enthalten und werden **direkt von der Festplatte** des Flash-PCs
-auf den Panel geflasht. Es wird nichts auf eine SD-/TF-Karte kopiert.
+Du hast recht: **Es gibt keinen ESP mehr.** Die frühere Idee war eine Firmware
+für ein *Elecrow CrowPanel Advanced ESP32-P4* mit 1024 × 600-Touchdisplay.
+Dieses Projekt wurde vollständig auf einen **reinen Linux-Rechner** umgestellt:
+
+| Früher (ESP32-P4) | Heute (nur Linux-Rechner) |
+| --- | --- |
+| Firmware `.bin` + SPIFFS-Image, geflasht per esptool | Python-Programm `maerchenbuch.py`, gestartet per Konsole/Doppelklick |
+| 1024×600-Touchdisplay des Panels | normales Fenster (Tkinter) auf deinem Monitor |
+| Touch-Wischen = Blättern | Klick / Pfeiltasten / Leertaste / Touchscreen |
+| Erzähl-Audio aus der Firmware | Vorlesen über Agnes-AI-Sprachausgabe, `espeak-ng`, `spd-say` oder `festival` |
+| Assets im SPIFFS-Image / auf SD-Karte | alles auf der **Festplatte** (Ordner `~/Maerchen` bzw. `./maerchen`) |
+| Flash-PC, CH341-Treiber, USB-C-Kabel | kein Flashen, keine Treiber, keine SD-/TF-Karte |
+
+Das frühere Firmware-ZIP und der `sd_card/`-Ordner wurden aus diesem Zweig
+entfernt — es wird nichts mehr auf ein Panel geflasht.
 
 ## Was wird benötigt
 
-- **CrowPanelv1.2_StoryBookP4_SPIFFS_v1.1.zip** — die komplette Firmware
-  (enthält alle Assets im SPIFFS-Image; alles bleibt auf der Festplatte).
-- Windows-PC oder Linux-PC zum Flashen.
-- Zwei Lautsprecher an **SPK-L** und **SPK-R**.
-- Ein Daten-USB-C-Kabel.
+- Ein beliebiger Linux-Rechner (z. B. Linux Mint, auch 32-Bit mit 2 GB RAM)
+- `python3` + Tkinter (`sudo apt-get install python3-tk`)
+- Zum Vorlesen: `sudo apt-get install espeak-ng` (deutsche Stimme)
+- Optional: API-Key der **Agnes-AI-API** (<https://platform.agnes-ai.com/>),
+  damit echte KI-Geschichten und Bilder erzeugt werden — ohne Key laufen
+  lokale Notgeschichten, das Programm stürzt nie ab.
 
-## Flashen (Windows)
-
-1. CH341-Treiber installieren:
-   [CH341SER herunterladen](https://www.wch-ic.com/downloads/CH341SER_ZIP.html)
-2. `CrowPanelv1.2_StoryBookP4_SPIFFS_v1.1.zip` auf der **Festplatte**
-   vollständig entpacken (kein SD-Karten-Schritt nötig).
-3. Panel über den **UART0 USB-C**-Port anschließen.
-4. `CrowPanel_P4_SPIFFS_flasher/CrowPanel_P4_SPIFFS_flasher.exe` starten.
-5. COM-Port wählen (sonst **Refresh**), **„Clean install (erase entire flash)"**
-   aktivieren, dann **Flash panel**.
-6. Warten bis „Firmware installed successfully". Panel startet neu.
-
-## Flashen (Linux, z. B. Linux Mint)
+## Installation
 
 ```bash
-sudo apt-get install -y python3-serial esptool
-unzip CrowPanelv1.2_StoryBookP4_SPIFFS_v1.1.zip -d storybook
-cd storybook/CrowPanel_P4_SPIFFS_flasher/firmware
-esptool --chip esp32p4 --port /dev/ttyUSB0 --baud 921600 write_flash \
-  0x0 bootloader.bin \
-  0x8000 partition-table.bin \
-  0x10000 crowpanel_p4_fairytale.bin \
-  0x200000 spiffs.bin   # Adresse je nach Partitionstabelle anpassen
+cd <Projektordner>
+./install.sh
+source ~/.bashrc
 ```
 
-Hinweis: Die exakten Flash-Adressen zeigt der Windows-Flasher aus dem ZIP;
-im Zweifel die dort angezeigte Adresse für `spiffs.bin` verwenden.
-(Asset-Quelldateien: Zweig `source-code`.)
+Der Installer prüft Tkinter/espeak-ng, legt den Festplatten-Ordner an und
+installiert den Befehl `maerchenbuch` nach `~/.local/bin`.
 
-## USB-C-Ports und Stromversorgung
+## Start
 
-- **UART0** — Flashen und serielle Kommunikation (Hauptanschluss).
-- **USB 2.0** — nativer USB-Port, kann zusätzlich 5 V liefern.
+```bash
+maerchenbuch                      # grafisches Fenster öffnen
+maerchenbuch --thema "Ein Igel"   # Fenster, Thema schon eingetragen
+```
 
-Falls der Panel unter Last instabil wird (Display schwarz, Resets,
-Audioabbrüche): zweites USB-C-Kabel an **USB 2.0** für Zusatzstrom anschließen.
+Im Fenster: Thema eintippen → **„Neues Maerchen“** → die Geschichte erscheint
+seitenweise; mit **„Vorlesen“** erzählt der Rechner sie laut, mit
+**„Maerchen oeffnen“** holst du gespeicherte Geschichten zurück.
+
+## Kommandozeile (für Skripte und sehr schwache Rechner)
+
+```bash
+python3 maerchenbuch.py --neu "Ein tapferer Drache" --bild --vorlesen
+python3 maerchenbuch.py --liste
+python3 maerchenbuch.py --oeffnen 1 --vorlesen
+python3 maerchenbuch.py --sprache    # zeigt verfügbare Stimmen
+python3 maerchenbuch.py --hilfe
+```
+
+## Alles auf der Festplatte
+
+Jedes Märchen wird als eigener Ordner gespeichert:
+
+```
+~/Maerchen/
+└── der-tapfere-drache_20261103-1015/
+    ├── geschichte.md        # Text
+    ├── illustration.png     # KI-Bild (falls API-Key gesetzt)
+    └── meta.json            # Titel, Datum, Dateien
+```
+
+Standardordner ist `./maerchen` neben dem Skript; frei wählbar mit
+`--datenordner PFAD` oder Umgebungsvariable `MAERCHEN_ORDNER`
+(der Installer setzt sie automatisch auf `~/Maerchen`).
+
+## Die alten Panel-Animationen
+
+In `geschichten/` liegen noch die früheren Animationsdateien des Panels
+(`book_open.cfa`, `bird_talk.gif` …). Sie sind nur noch Archiv — das Linux-
+Programm braucht sie nicht; Blättern und der sprechende Vogel werden durch
+die Seitenansicht und die Sprachausgabe ersetzt.
+
+## Deutsche KI-Werkzeuge (Agnes-AI)
+
+In `tool/` bleiben die zusätzlichen Kommandozeilen-/GUI-Programme, die über
+dieselbe Agnes-AI-API Texte und Bilder erzeugen (Ausgaben ebenfalls direkt
+auf die Festplatte): [tool/README_DE.md](tool/README_DE.md)
 
 ## Fehlerbehebung
 
-- Panel nicht erkannt → über UART0 neu verbinden, COM-Port-Besitzer schließen, **Refresh**.
-- Anwendung startet nicht → beide Lautsprecher an SPK-L/SPK-R prüfen; beim
-  ersten Start ggf. Panel neu starten. Eine SD-Karte ist **nicht** erforderlich.
-
-## Deutsche KI-Werkzeuge (Agnes-AI, Linux Mint 32-Bit / 2 GB RAM)
-
-In `tool/` befinden sich deutsche Kommandozeilen- und GUI-Programme, die über
-die **Agnes-AI-API** (<https://github.com/AgnesAI-Labs/AgnesAI-Models>) Texte
-und Bilder erzeugen — für Märchen mit eigenen Themen. Alle Ausgaben werden
-**direkt auf die Festplatte** gespeichert (Standardordner `./ausgaben/`,
-frei wählbar mit `--ausgabe-dir` bzw. als Argument). Sie laufen auf alter
-Hardware (32-Bit, 2 GB RAM), weil sie nur Bash/curl/Python-Standardbibliothek
-nutzen.
-
-Anleitung: [tool/README_DE.md](tool/README_DE.md)
+- Kein Ton beim Vorlesen → `sudo apt-get install espeak-ng`, dann
+  `python3 maerchenbuch.py --sprache` prüfen.
+- „Tkinter fehlt“ → `sudo apt-get install python3-tk`.
+- Nur Notgeschichten → API-Key setzen: `export AGNES_API_KEY="..."`
+  (oder Datei `~/.agnes_api_key`).
+- HTTP 401 → Schlüssel falsch/abgelaufen; HTTP 429 → Rate-Limit, kurz warten.
