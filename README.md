@@ -77,3 +77,12 @@ On the **first startup with the microSD card**, the card may occasionally not be
 ## Source code
 
 Source code and build instructions: [source-code branch](https://github.com/AI-devices/FairyTales/tree/source-code).
+
+## Deutsche KI-Werkzeuge (Agnes-AI, Linux Mint 32-Bit / 2 GB RAM)
+
+Zusätzlich befinden sich in `tool/` deutsche Kommandozeilen- und
+GUI-Programme, die über die **Agnes-AI-API** Texte und Bilder erzeugen
+(für Geschichten mit eigenen Themen). Sie laufen auf alter Hardware
+(32-Bit, 2 GB RAM), weil sie nur Bash/curl/Python-Standardbibliothek nutzen.
+
+Anleitung: [tool/README_DE.md](tool/README_DE.md)
