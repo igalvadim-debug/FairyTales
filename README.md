@@ -31,10 +31,16 @@ auf den Panel geflasht. Es wird nichts auf eine SD-/TF-Karte kopiert.
 ```bash
 sudo apt-get install -y python3-serial esptool
 unzip CrowPanelv1.2_StoryBookP4_SPIFFS_v1.1.zip -d storybook
-cd storybook/CrowPanel_P4_SPIFFS_flasher
-esptool --chip esp32p4 --port /dev/ttyUSB0 --baud 921600 write_flash @flash_args
+cd storybook/CrowPanel_P4_SPIFFS_flasher/firmware
+esptool --chip esp32p4 --port /dev/ttyUSB0 --baud 921600 write_flash \
+  0x0 bootloader.bin \
+  0x8000 partition-table.bin \
+  0x10000 crowpanel_p4_fairytale.bin \
+  0x200000 spiffs.bin   # Adresse je nach Partitionstabelle anpassen
 ```
 
+Hinweis: Die exakten Flash-Adressen zeigt der Windows-Flasher aus dem ZIP;
+im Zweifel die dort angezeigte Adresse für `spiffs.bin` verwenden.
 (Asset-Quelldateien: Zweig `source-code`.)
 
 ## USB-C-Ports und Stromversorgung
