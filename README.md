@@ -1,88 +1,64 @@
-# CrowPanel P4 Fairy-Tale Storybook
+# CrowPanel P4 Märchen-Storybook — ESP32-P4 Firmware (Festplatten-Version)
 
-Interactive branching storybook for **Elecrow CrowPanel Advanced ESP32-P4 panels with 1024 × 600 touch displays**. The application combines illustrated scenes, animations, built-in narration audio, and touch-based choices.
+Interaktives Märchenbuch für **Elecrow CrowPanel Advanced ESP32-P4** mit
+1024 × 600 Touchdisplay. Diese Version kommt **ohne microSD-Karte** aus:
+Alle Inhalte (Bilder, Animationen, Erzähl-Audio) sind bereits in der
+Firmware enthalten und werden **direkt von der Festplatte** des Flash-PCs
+auf den Panel geflasht. Es wird nichts auf eine SD-/TF-Karte kopiert.
 
-This package provides a ready-to-use Windows flashing tool for hardware revision **V1.2**.
+## Was wird benötigt
 
-## Prepare the microSD Card
+- **CrowPanelv1.2_StoryBookP4_SPIFFS_v1.1.zip** — die komplette Firmware
+  (enthält alle Assets im SPIFFS-Image; alles bleibt auf der Festplatte).
+- Windows-PC oder Linux-PC zum Flashen.
+- Zwei Lautsprecher an **SPK-L** und **SPK-R**.
+- Ein Daten-USB-C-Kabel.
 
-A **microSD card is required** for the application.
+## Flashen (Windows)
 
-1. Format the microSD card as **FAT32**.
-   - On Windows, right-click the card in File Explorer, select **Format**, and choose **FAT32**.
-   - If FAT32 is not available in the standard formatting dialog, use a FAT32 formatting utility.
-2. Copy the complete `assets` folder from `sd_card/` to the **root of the microSD card**.
-3. Insert the prepared card into the panel's **TF card slot**.
+1. CH341-Treiber installieren:
+   [CH341SER herunterladen](https://www.wch-ic.com/downloads/CH341SER_ZIP.html)
+2. `CrowPanelv1.2_StoryBookP4_SPIFFS_v1.1.zip` auf der **Festplatte**
+   vollständig entpacken (kein SD-Karten-Schritt nötig).
+3. Panel über den **UART0 USB-C**-Port anschließen.
+4. `CrowPanel_P4_SPIFFS_flasher/CrowPanel_P4_SPIFFS_flasher.exe` starten.
+5. COM-Port wählen (sonst **Refresh**), **„Clean install (erase entire flash)"**
+   aktivieren, dann **Flash panel**.
+6. Warten bis „Firmware installed successfully". Panel startet neu.
 
-The resulting card structure must be:
+## Flashen (Linux, z. B. Linux Mint)
 
-```text
-assets/
-├── book_open.cfa
-├── book_swipe.cfa
-├── book_close.cfa
-├── bird_idle.gif
-├── bird_start_talk.gif
-└── bird_talk.gif
+```bash
+sudo apt-get install -y python3-serial esptool
+unzip CrowPanelv1.2_StoryBookP4_SPIFFS_v1.1.zip -d storybook
+cd storybook/CrowPanel_P4_SPIFFS_flasher
+esptool --chip esp32p4 --port /dev/ttyUSB0 --baud 921600 write_flash @flash_args
 ```
 
-## Speakers
+(Asset-Quelldateien: Zweig `source-code`.)
 
-Two speakers are required.
+## USB-C-Ports und Stromversorgung
 
-Connect one speaker to the **SPK-L** connector and the other speaker to the **SPK-R** connector.
+- **UART0** — Flashen und serielle Kommunikation (Hauptanschluss).
+- **USB 2.0** — nativer USB-Port, kann zusätzlich 5 V liefern.
 
-## Flashing
+Falls der Panel unter Last instabil wird (Display schwarz, Resets,
+Audioabbrüche): zweites USB-C-Kabel an **USB 2.0** für Zusatzstrom anschließen.
 
-1. Install the **CH341 USB-to-Serial driver for Windows**:
-   [Download CH341SER driver](https://www.wch-ic.com/downloads/CH341SER_ZIP.html)
-2. Download and fully extract `CrowPanelv1.2_StoryBookP4_SPIFFS_v1.1.zip`.
-3. Make sure the microSD card is formatted as **FAT32**, contains the required `assets` folder, and is inserted into the panel.
-4. Connect the panel’s **UART0 USB-C port** to a Windows computer using a data-capable USB cable.
-5. Open the extracted `CrowPanel_P4_SPIFFS_flasher` folder.
-6. Run `CrowPanel_P4_SPIFFS_flasher.exe`.
-7. Select the panel's COM port. Click **Refresh** if the port is not listed.
-8. Make sure **Clean install (erase entire flash)** is enabled.
-9. Click **Flash panel**.
-10. Do not disconnect the panel while flashing.
-11. Wait for the **Firmware installed successfully** message.
+## Fehlerbehebung
 
-The panel restarts automatically after flashing.
-
-## USB-C Ports and Power
-
-CrowPanel Advanced ESP32-P4 has two USB-C ports:
-
-- **UART0** — used for firmware flashing and serial communication.
-- **USB 2.0** — native USB port that can also provide additional 5V power.
-
-Use **UART0** as the main connection for flashing.
-
-If the panel becomes unstable under load — for example, the display goes black, the panel resets, or audio operation becomes unstable — connect a second USB-C cable to **USB 2.0** for additional power.
-
-If the panel works reliably with one cable, the second cable is not required.
-
-## Troubleshooting
-
-If the panel is not detected, reconnect it through **UART0**, close any application using the COM port, and click **Refresh**.
-
-If the application does not start correctly, make sure:
-
-- the microSD card is inserted and formatted as **FAT32**;
-- all required files are located under `<SD root>/assets/`;
-- both speakers are connected to the **SPK-L** and **SPK-R** connectors.
-
-On the **first startup with the microSD card**, the card may occasionally not be detected. If this happens, **restart the panel**. The microSD card should be detected normally after the restart.
-
-## Source code
-
-Source code and build instructions: [source-code branch](https://github.com/AI-devices/FairyTales/tree/source-code).
+- Panel nicht erkannt → über UART0 neu verbinden, COM-Port-Besitzer schließen, **Refresh**.
+- Anwendung startet nicht → beide Lautsprecher an SPK-L/SPK-R prüfen; beim
+  ersten Start ggf. Panel neu starten. Eine SD-Karte ist **nicht** erforderlich.
 
 ## Deutsche KI-Werkzeuge (Agnes-AI, Linux Mint 32-Bit / 2 GB RAM)
 
-Zusätzlich befinden sich in `tool/` deutsche Kommandozeilen- und
-GUI-Programme, die über die **Agnes-AI-API** Texte und Bilder erzeugen
-(für Geschichten mit eigenen Themen). Sie laufen auf alter Hardware
-(32-Bit, 2 GB RAM), weil sie nur Bash/curl/Python-Standardbibliothek nutzen.
+In `tool/` befinden sich deutsche Kommandozeilen- und GUI-Programme, die über
+die **Agnes-AI-API** (<https://github.com/AgnesAI-Labs/AgnesAI-Models>) Texte
+und Bilder erzeugen — für Märchen mit eigenen Themen. Alle Ausgaben werden
+**direkt auf die Festplatte** gespeichert (Standardordner `./ausgaben/`,
+frei wählbar mit `--ausgabe-dir` bzw. als Argument). Sie laufen auf alter
+Hardware (32-Bit, 2 GB RAM), weil sie nur Bash/curl/Python-Standardbibliothek
+nutzen.
 
 Anleitung: [tool/README_DE.md](tool/README_DE.md)

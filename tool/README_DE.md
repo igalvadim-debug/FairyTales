@@ -77,6 +77,17 @@ Hintergrundthread, das Fenster bleibt bedienbar. Eine kleine
 Bild-Vorschau erscheint nur, wenn zusätzlich `python3-pil` installiert ist —
 sie ist optional.
 
+## Alles auf der Festplatte (keine SD-Karte nötig)
+
+Diese Werkzeuge brauchen **keine SD-/microSD-Karte**. Alle erzeugten Texte
+und Bilder werden direkt auf die **Festplatte** geschrieben:
+
+- Standard-Ausgabeordner: `./ausgaben/` im aktuellen Verzeichnis.
+- frei wählbar: `agnes-cli geschichte "Thema" ~/Geschichten` bzw.
+  `python3 agnes_client.py geschichte "Thema" --ausgabe-dir ~/Geschichten`.
+- Die Firmware des Panels enthält alle Inhalte selbst (SPIFFS-Image aus dem
+  ZIP) — es wird nichts auf eine Karte kopiert.
+
 ## Tipps für 32-Bit / 2 GB RAM
 
 - Bilder in **1024×768** oder **1024×1024** erzeugen (1-Klasse-Auflösung =
